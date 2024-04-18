@@ -66,11 +66,9 @@ ORDER BY last_name ASC;
 # Challenge 2
 # Next, you need to analyze the films in the collection to gain some more insights. Using the film table, determine:
 # 1.1 The total number of films that have been released.
-SELECT release_year,
-COUNT(film_id) AS total_number_released
-FROM film
-GROUP BY release_year
-HAVING release_year <> 0;
+SELECT COUNT(film_id) AS total_number_released
+FROM film;
+
 
 # 1.2 The number of films for each rating.
 SELECT rating, COUNT(*) AS film_count
