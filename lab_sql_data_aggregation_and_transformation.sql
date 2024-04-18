@@ -6,14 +6,8 @@ FROM film;
 SELECT MIN(length) as min_duration
 FROM film;
 # 1.2. Express the average movie duration in hours and minutes. Don't use decimals.
-SELECT 
-  CONCAT(
-    AVG(length) DIV 60, 
-    ' hours ', 
-    FORMAT(AVG(length) MOD 60, 0), 
-    ' minutes'
-  ) AS average_duration
-FROM film;
+
+SELECT FLOOR(AVG(length) / 60) AS hours, ROUND(AVG(length) % 60) AS minutes FROM film;
 # Hint: Look for floor and round functions.
 
 # You need to gain insights related to rental dates:
@@ -39,6 +33,7 @@ END
 AS DAY_TYPE
 FROM rental;
 # Hint: use a conditional expression.
+SELECT CASE WHEN DATE_FORMAT(rental_date, '%W') IN ('Saturday', 'Sunday') THEN 'weekend' ELSE 'workday' END AS day_type FROM rental;
 
 # You need to ensure that customers can easily access information about the movie collection.
 # To achieve this, retrieve the film titles and their rental duration.
@@ -57,16 +52,26 @@ ORDER BY title ASC;
 # The results should be ordered by last name in ascending order to make it easier to use the data.
 
 SELECT
-CONCAT (first_name,' ',last_name) AS ful_name,
+CONCAT (first_name,' ',last_name) AS full_name,
 LEFT(email, 3) AS email_prefix
+FROM customer
+ORDER BY last_name ASC;
+
+SELECT
+CONCAT (first_name,' ',last_name) AS full_name,
+SUBSTRING(email, 1, 3) AS email_prefix
 FROM customer
 ORDER BY last_name ASC;
 
 # Challenge 2
 # Next, you need to analyze the films in the collection to gain some more insights. Using the film table, determine:
 # 1.1 The total number of films that have been released.
-SELECT COUNT(release_year) AS total_number_released
-FROM film;
+SELECT release_year,
+COUNT(film_id) AS total_number_released
+FROM film
+GROUP BY release_year
+HAVING release_year <> 0;
+
 # 1.2 The number of films for each rating.
 SELECT rating, COUNT(*) AS film_count
 FROM film
@@ -82,7 +87,7 @@ ORDER BY film_count DESC;
 # Using the film table, determine:
 # 2.1 The mean film duration for each rating, and sort the results in descending order of the mean duration.
 # Round off the average lengths to two decimal places. This will help identify popular movie lengths for each category.
-SELECT rating, ROUND(AVG(length),0) AS average_lengths
+SELECT rating, ROUND(AVG(length),2) AS average_lengths
 FROM film
 GROUP BY rating
 ORDER BY average_lengths DESC;
@@ -99,3 +104,8 @@ SELECT last_name, COUNT(*) AS last_name_count
 FROM actor
 GROUP BY last_name
 HAVING last_name_count = 1;
+
+SELECT last_name
+FROM actor
+GROUP BY last_name
+HAVING COUNT(last_name) = 1;
